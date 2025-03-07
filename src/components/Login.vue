@@ -61,7 +61,7 @@ const axios: any = inject("axios");
 const router = useRouter();
 const submitForm = async () => {
   try {
-    const response = await axios.post("http://localhost:8081/api/login", {
+    const response = await axios.post("/api/login", {
       username: username.value,
       password: password.value,
     });
