@@ -28,8 +28,12 @@
               dense
             ></v-text-field>
 
-            <v-btn :disabled="!valid" color="primary" block type="submit">
+            <v-btn :disabled="!valid" color="blue-darken-3" block type="submit">
               Login
+            </v-btn>
+
+            <v-btn color="blue-lighten-4" to="/register" block>
+              Register
             </v-btn>
 
             <!-- Error message -->

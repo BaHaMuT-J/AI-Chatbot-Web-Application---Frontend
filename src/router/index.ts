@@ -21,7 +21,11 @@ router.beforeEach(async (to, from, next) => {
   let response = await axiosInstance.get("/api/whoami");
   let isLoggedIn = response.data.loggedIn;
 
-  if ((to.name as string) !== "/login" && !isLoggedIn) {
+  if (
+    (to.name as string) !== "/login" &&
+    (to.name as string) !== "/register" &&
+    !isLoggedIn
+  ) {
     next({ name: "/login" });
   } else if ((to.name as string) === "/login" && isLoggedIn) {
     next({ name: "/" });
