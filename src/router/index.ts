@@ -17,11 +17,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  let response = await axiosInstance.get("/api/whoami");
-  console.log(response);
-  if ((to.name as string) !== "/") {
+  // let response = await axiosInstance.get("/api/whoami");
+  // console.log(response);
+  let isLoggedIn = false;
+  if ((to.name as string) !== "/login" && !isLoggedIn) {
+    next({ name: "/login" });
+  } else if ((to.name as string) === "/login" && isLoggedIn) {
     next({ name: "/" });
-    return;
   } else {
     next();
   }
