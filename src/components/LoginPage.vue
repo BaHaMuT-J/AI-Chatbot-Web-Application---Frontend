@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "@/stores/app";
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 
@@ -68,11 +67,6 @@ const submitForm = async () => {
     });
 
     if (response.data.success) {
-      const appStore = useAppStore();
-      appStore.setLoggedInUser({
-        username: response.data.username,
-        displayName: response.data.displayName,
-      });
       router.push("/");
     } else {
       errorMessage.value = response.data.message || "Login failed.";

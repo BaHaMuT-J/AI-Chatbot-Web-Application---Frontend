@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from "vue-router/auto";
 import { setupLayouts } from "virtual:generated-layouts";
 import { routes } from "vue-router/auto-routes";
 import { axiosInstance } from "@/plugins/vue-axios";
+import { useAppStore } from "@/stores/app";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,14 +17,25 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  const appStore = useAppStore();
   let response = await axiosInstance.get("/api/whoami");
   let isLoggedIn = response.data.loggedIn;
+
   if ((to.name as string) !== "/login" && !isLoggedIn) {
     next({ name: "/login" });
   } else if ((to.name as string) === "/login" && isLoggedIn) {
     next({ name: "/" });
   } else {
     next();
+  }
+
+  if (isLoggedIn) {
+    appStore.setLoggedInUser({
+      username: response.data.username,
+      displayName: response.data.displayName,
+    });
+  } else {
+    appStore.clearUser();
   }
 });
 
