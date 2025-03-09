@@ -3,32 +3,28 @@ import { defineStore } from "pinia";
 
 interface userPayload {
   username: string;
-  diplayName: string;
-  chatIds: number[];
+  displayName: string;
 }
 
 export const useAppStore = defineStore("app", {
   state: () => ({
     isLoggedIn: false,
     username: "",
-    diplayName: "",
-    chatIds: [] as number[],
+    displayName: "",
   }),
   getters: {
     //
   },
   actions: {
-    setLoggedInUser({ username, diplayName, chatIds }: userPayload) {
+    setLoggedInUser({ username, displayName: diplayName }: userPayload) {
       this.isLoggedIn = true;
       this.username = username;
-      this.diplayName = diplayName;
-      this.chatIds = chatIds;
+      this.displayName = diplayName;
     },
     clearUser() {
       this.isLoggedIn = false;
       this.username = "";
-      this.diplayName = "";
-      this.chatIds = [] as number[];
+      this.displayName = "";
     },
   },
 });

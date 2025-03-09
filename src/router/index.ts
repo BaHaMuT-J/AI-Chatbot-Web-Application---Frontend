@@ -9,7 +9,6 @@ import { createRouter, createWebHistory } from "vue-router/auto";
 import { setupLayouts } from "virtual:generated-layouts";
 import { routes } from "vue-router/auto-routes";
 import { axiosInstance } from "@/plugins/vue-axios";
-import axios from "axios";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,9 +16,8 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  // let response = await axiosInstance.get("/api/whoami");
-  // console.log(response);
-  let isLoggedIn = false;
+  let response = await axiosInstance.get("/api/whoami");
+  let isLoggedIn = response.data.loggedIn;
   if ((to.name as string) !== "/login" && !isLoggedIn) {
     next({ name: "/login" });
   } else if ((to.name as string) === "/login" && isLoggedIn) {
