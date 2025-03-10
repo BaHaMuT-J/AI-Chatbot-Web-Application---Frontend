@@ -66,7 +66,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://localhost:8081", // the backend API's base URL
+        target: "http://localhost:8081", // the backend API's base URL [ http://localhost:8081 | https://todo.baby ]
         changeOrigin: true, // changes the origin of the host header to the target URL
         secure: false, // set to `false` if you're using HTTP and not HTTPS
       },
