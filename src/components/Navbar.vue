@@ -38,18 +38,51 @@
   <v-navigation-drawer v-model="drawer" width="300">
     <v-list style="position: absolute" flat width="100%">
       <v-list-item class="text-center">
-        <v-list-item-title class="my-4"> Model Chats </v-list-item-title>
+        <v-list-item-title class="text-h6 my-4">
+          Model Chats
+        </v-list-item-title>
         <v-divider></v-divider>
       </v-list-item>
-      <v-list-item>
-        <v-avatar class="my-4" size="x-large">
-          <img src="https://cdn.vuetifyjs.com/images/lists/1.jpg" />
-        </v-avatar>
-      </v-list-item>
-      <v-list-item>
-        <v-avatar class="my-4" size="x-large">
-          <img src="https://cdn.vuetifyjs.com/images/lists/1.jpg" />
-        </v-avatar>
+      <v-list-item
+        class="text-center my-4"
+        v-for="(model, index) in models"
+        :key="index"
+        @click="() => chatWithAI(model.name)"
+      >
+        <template v-slot:prepend>
+          <v-avatar class="ml-4" size="x-large">
+            <svg
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M16 8.016A8.522 8.522 0 008.016 16h-.032A8.521 8.521 0 000 8.016v-.032A8.521 8.521 0 007.984 0h.032A8.522 8.522 0 0016 7.984v.032z"
+                fill="url(#prefix__paint0_radial_980_20147)"
+              />
+              <defs>
+                <radialGradient
+                  id="prefix__paint0_radial_980_20147"
+                  cx="0"
+                  cy="0"
+                  r="1"
+                  gradientUnits="userSpaceOnUse"
+                  gradientTransform="matrix(16.1326 5.4553 -43.70045 129.2322 1.588 6.503)"
+                >
+                  <stop offset=".067" stop-color="#9168C0" />
+                  <stop offset=".343" stop-color="#5684D1" />
+                  <stop offset=".672" stop-color="#1BA1E3" />
+                </radialGradient>
+              </defs>
+            </svg>
+          </v-avatar>
+        </template>
+        <v-list-item-title>
+          {{ model.name }}
+        </v-list-item-title>
+        <v-list-item-subtitle>
+          {{ model.version }}
+        </v-list-item-subtitle>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -58,6 +91,13 @@
 <script setup lang="ts">
 import { ref, inject } from "vue";
 
+interface AI {
+  aiId: number;
+  name: string;
+  version: string;
+}
+
+const models = ref<AI[] | null>(null);
 const drawer = ref(true);
 
 const axios: any = inject("axios");
@@ -82,9 +122,16 @@ const menus = [
   },
 ];
 
-onMounted(() => {
+const chatWithAI = (name: string) => {
+  console.log("chat with " + name);
+};
+
+onMounted(async () => {
   if (window.innerWidth < 1024) {
     drawer.value = false;
   }
+
+  let response = await axios.get("/api/ai/models");
+  models.value = response.data;
 });
 </script>

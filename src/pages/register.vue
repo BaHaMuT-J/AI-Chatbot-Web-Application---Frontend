@@ -91,7 +91,7 @@ const ConfirmedPasswordRules = [
   (value: string) => value === password.value || "Passwords do not match",
 ];
 
-// Login form submission handler
+// Register form submission handler
 const axios: any = inject("axios");
 const router = useRouter();
 const submitForm = async () => {
