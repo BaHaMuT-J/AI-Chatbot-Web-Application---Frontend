@@ -1,5 +1,5 @@
 <template>
-  <HelloWorld />
+  <Chat />
 </template>
 
 <script lang="ts" setup>
