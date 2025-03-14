@@ -9,7 +9,6 @@
     <template v-slot:append>
       <v-btn color="primary">
         <v-icon>
-          <!-- <i class="fa-solid fa-user fa-xl" style="color: #e9ecf1"></i> -->
           <i class="fa-solid fa-circle-info fa-xl" style="color: #e9ecf1"></i>
         </v-icon>
 
@@ -21,15 +20,14 @@
               :value="index"
               width="150"
               class="d-flex justify-center align-center"
+              @click="item.click"
             >
               <template v-slot:prepend>
                 <v-icon>
                   <i :class="item.icon" style="color: #e9ecf1"></i>
                 </v-icon>
               </template>
-              <v-list-item-title @click="item.click">{{
-                item.title
-              }}</v-list-item-title>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -83,4 +81,10 @@ const menus = [
     click: logout,
   },
 ];
+
+onMounted(() => {
+  if (window.innerWidth < 1024) {
+    drawer.value = false;
+  }
+});
 </script>

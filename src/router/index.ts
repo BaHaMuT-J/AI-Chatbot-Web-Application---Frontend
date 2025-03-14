@@ -35,6 +35,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (isLoggedIn) {
     appStore.setLoggedInUser({
+      userId: response.data.userId,
       username: response.data.username,
       displayName: response.data.displayName,
     });
