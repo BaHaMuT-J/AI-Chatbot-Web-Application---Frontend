@@ -55,6 +55,10 @@
               Register
             </v-btn>
 
+            <v-btn class="mt-2" color="grey-darken-1" to="/login" block>
+              Back
+            </v-btn>
+
             <!-- Error message -->
             <v-alert v-if="errorMessage" type="error" dismissible class="mt-4">
               {{ errorMessage }}

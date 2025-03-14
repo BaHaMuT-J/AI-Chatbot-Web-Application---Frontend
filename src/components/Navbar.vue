@@ -8,9 +8,10 @@
 
     <template v-slot:append>
       <v-btn color="primary">
-        <v-icon
-          ><i class="fa-solid fa-user fa-xl" style="color: #e9ecf1"></i
-        ></v-icon>
+        <v-icon>
+          <!-- <i class="fa-solid fa-user fa-xl" style="color: #e9ecf1"></i> -->
+          <i class="fa-solid fa-circle-info fa-xl" style="color: #e9ecf1"></i>
+        </v-icon>
 
         <v-menu activator="parent">
           <v-list>
@@ -18,7 +19,14 @@
               v-for="(item, index) in menus"
               :key="index"
               :value="index"
+              width="150"
+              class="d-flex justify-center align-center"
             >
+              <template v-slot:prepend>
+                <v-icon>
+                  <i :class="item.icon" style="color: #e9ecf1"></i>
+                </v-icon>
+              </template>
               <v-list-item-title @click="item.click">{{
                 item.title
               }}</v-list-item-title>
@@ -32,9 +40,6 @@
   <v-navigation-drawer v-model="drawer" width="300">
     <v-list style="position: absolute" flat width="100%">
       <v-list-item class="text-center">
-        <!-- <v-icon class="mb-2"
-            ><i class="fa-solid fa-user fa-xl" style="color: #e9ecf1"></i
-          ></v-icon> -->
         <v-list-item-title class="my-4"> Model Chats </v-list-item-title>
         <v-divider></v-divider>
       </v-list-item>
@@ -62,12 +67,20 @@ const router = useRouter();
 const profile = () => {};
 const setting = () => {};
 const logout = async () => {
-  let response = await axios.get("/api/logout");
+  await axios.get("/api/logout");
   router.push("/login");
 };
 const menus = [
-  { title: "Profile", click: profile },
-  { title: "Setting", click: setting },
-  { title: "Logout", click: logout },
+  { title: "Profile", icon: "fa-solid fa-user", click: profile },
+  {
+    title: "Setting",
+    icon: "fa-solid fa-gear",
+    click: setting,
+  },
+  {
+    title: "Logout",
+    icon: "fa-solid fa-right-to-bracket",
+    click: logout,
+  },
 ];
 </script>
