@@ -3,7 +3,7 @@
     <v-list ref="chatBox" class="pa-2" height="calc(85vh - 80px)">
       <v-list-item v-for="(msg, index) in messages" :key="index">
         <v-row
-          :justify="msg.from === 'me' ? 'end' : 'start'"
+          :justify="msg.user ? 'end' : 'start'"
           class="d-flex align-center mb-4"
         >
           <!-- <v-avatar v-if="msg.from !== 'me'" size="40">
@@ -37,31 +37,16 @@
 </template>
 
 <script setup lang="js">
+import { useAppStore } from "@/stores/app";
 import { ref } from "vue";
 
-const messages = ref([
-  { text: "Hey! How are you?", from: "other" },
-  { text: "I'm good! You?", from: "me" },
-  { text: "Great! Let's build a chat app.", from: "other" },
-  { text: "Hey! How are you?", from: "other" },
-  { text: "I'm good! You?", from: "me" },
-  { text: "Great! Let's build a chat app.", from: "other" },
-  { text: "Hey! How are you?", from: "other" },
-  { text: "I'm good! You?", from: "me" },
-  { text: "Great! Let's build a chat app.", from: "other" },
-  { text: "Hey! How are you?", from: "other" },
-  { text: "I'm good! You?", from: "me" },
-  { text: "Great! Let's build a chat app.", from: "other" },
-  { text: "Hey! How are you?", from: "other" },
-  { text: "I'm good! You?", from: "me" },
-  { text: "Great! Let's build a chat app.", from: "other" },
-  { text: "Hey! How are you?", from: "other" },
-  { text: "I'm good! You?", from: "me" },
-  { text: "Great! Let's build a chat app.", from: "other" },
-]);
+const messages = ref([]);
 
 const newMessage = ref("");
 const chatBox = ref(null);
+
+const appStore = useAppStore();
+const axios = inject("axios");
 
 const scrollToBottom = () => {
   if (chatBox.value) {
@@ -72,7 +57,7 @@ const scrollToBottom = () => {
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== "") {
-    messages.value.push({ text: newMessage.value, from: "me" });
+    messages.value.push({ text: newMessage.value, user: true });
     newMessage.value = "";
 
     nextTick(() => {
@@ -81,7 +66,21 @@ const sendMessage = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  if (appStore.aiId !== null) {
+    let respose = await axios.post("/api/chat/getByUserAndAI", {
+      userId: appStore.userId,
+      aiId: appStore.aiId,
+    });
+    let chatId = respose.data.chatId;
+    appStore.setChat(chatId);
+
+    respose = await axios.post("/api/message/getByChat", {
+      chatId: chatId,
+    });
+    messages.value = respose.data;
+  }
+
   scrollToBottom();
 });
 </script>

@@ -13,6 +13,8 @@ export const useAppStore = defineStore("app", {
     isLoggedIn: false,
     username: "",
     displayName: "",
+    aiId: null as number | null,
+    chatId: null as number | null,
   }),
   getters: {
     //
@@ -28,6 +30,12 @@ export const useAppStore = defineStore("app", {
       this.isLoggedIn = false;
       this.username = "";
       this.displayName = "";
+    },
+    setAI(aiId: number) {
+      this.aiId = aiId;
+    },
+    setChat(chatId: number) {
+      this.chatId = chatId;
     },
   },
 });

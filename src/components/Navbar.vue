@@ -44,10 +44,11 @@
         <v-divider></v-divider>
       </v-list-item>
       <v-list-item
-        class="text-center my-4"
+        class="text-center py-4"
         v-for="(model, index) in models"
         :key="index"
-        @click="() => chatWithAI(model.name)"
+        :active="model.aiId === highlighted"
+        @click="() => chatWithAI(model.aiId)"
       >
         <template v-slot:prepend>
           <v-avatar class="ml-4" size="x-large">
@@ -89,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from "@/stores/app";
 import { ref, inject } from "vue";
 
 interface AI {
@@ -98,6 +100,7 @@ interface AI {
 }
 
 const models = ref<AI[] | null>(null);
+const highlighted = ref<number | null>(null);
 const drawer = ref(true);
 
 const axios: any = inject("axios");
@@ -122,11 +125,20 @@ const menus = [
   },
 ];
 
-const chatWithAI = (name: string) => {
-  console.log("chat with " + name);
+const appStore = useAppStore();
+const chatWithAI = (id: number) => {
+  if (highlighted.value !== id) {
+    appStore.setAI(id);
+    router.push("/chat");
+  }
 };
 
+const route = useRoute();
 onMounted(async () => {
+  if (appStore.aiId !== null) {
+    highlighted.value = appStore.aiId;
+  }
+
   if (window.innerWidth < 1024) {
     drawer.value = false;
   }
