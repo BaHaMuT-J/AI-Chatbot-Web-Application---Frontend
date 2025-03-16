@@ -4,15 +4,15 @@
       <v-list-item v-for="(msg, index) in messages" :key="index">
         <v-row
           :justify="msg.user ? 'end' : 'start'"
-          class="d-flex align-center mb-4"
+          class="d-flex align-center mb-4 pa-3"
         >
           <!-- <v-avatar v-if="msg.from !== 'me'" size="40">
             <v-img src="https://randomuser.me/api/portraits/men/75.jpg" />
           </v-avatar> -->
 
-          <v-card class="rounded-xl pa-3" max-width="70%" color="primary">
+          <v-card class="rounded-xl pa-3" max-width="70%" color="blue-darken-3">
             <v-card-text class="text-white">
-              {{ msg.text }}
+              <span v-html="parseMarkdown(msg.text)"></span>
             </v-card-text>
           </v-card>
         </v-row>
@@ -39,6 +39,7 @@
 <script setup lang="js">
 import { useAppStore } from "@/stores/app";
 import { ref } from "vue";
+import { marked } from "marked";
 
 const messages = ref([]);
 
@@ -59,6 +60,10 @@ const sendMessage = async () => {
   if (newMessage.value.trim() !== "") {
     let msg = newMessage.value
     newMessage.value = "";
+    messages.value.push({ text: msg, user: true });
+    nextTick(() => {
+      scrollToBottom();
+    });
 
     let response = await axios.post("/api/chat/send", {
       chatId: appStore.chatId,
@@ -66,12 +71,11 @@ const sendMessage = async () => {
     });
 
     if (response.data.success === false) {
-      // alert error
+      // TODO: alert error
+      messages.value.pop();
       let error = response.data.message;
       return;
     }
-
-    messages.value.push({ text: msg, user: true });
     msg = response.data.response
     messages.value.push({ text: msg, user: false });
 
@@ -79,6 +83,11 @@ const sendMessage = async () => {
       scrollToBottom();
     });
   }
+};
+
+const parseMarkdown = (text) => {
+  // TODO: if possible, line break the code
+  return marked(text);
 };
 
 watch(
