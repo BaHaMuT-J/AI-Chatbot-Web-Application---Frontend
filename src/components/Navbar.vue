@@ -101,13 +101,13 @@ interface AI {
   version: string;
 }
 
-const models = ref<AI[] | null>(null);
-const highlighted = ref<number | null>(null);
-const drawer = ref(true);
-
 const appStore = useAppStore();
 const router = useRouter();
 const axios: any = inject("axios");
+
+const models = ref<AI[] | null>(null);
+const highlighted = ref<number | null>(appStore.aiId);
+const drawer = ref(true);
 
 const goHome = () => {
   appStore.aiId = null;

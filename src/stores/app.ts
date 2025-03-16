@@ -1,4 +1,3 @@
-// Utilities
 import { defineStore } from "pinia";
 
 interface userPayload {
@@ -17,7 +16,7 @@ export const useAppStore = defineStore("app", {
     chatId: null as number | null,
   }),
   getters: {
-    //
+    // Define getters if necessary
   },
   actions: {
     setLoggedInUser({ userId, username, displayName }: userPayload) {
@@ -34,5 +33,8 @@ export const useAppStore = defineStore("app", {
       this.aiId = null;
       this.chatId = null;
     },
+  },
+  persist: {
+    pick: ["aiId", "chatId"],
   },
 });

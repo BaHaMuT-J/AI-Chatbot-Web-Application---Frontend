@@ -89,6 +89,24 @@ watch(
   },
   { immediate: true }
 );
+
+onMounted(async () => {
+  if (appStore.aiId !== null) {
+    let response = await axios.post("/api/chat/getByUserAndAI", {
+      userId: appStore.userId,
+      aiId: appStore.aiId,
+    });
+    let chatId = response.data.chatId;
+    appStore.chatId = chatId;
+
+    response = await axios.post("/api/message/getByChat", {
+      chatId: chatId,
+    });
+    messages.value = response.data;
+
+    scrollToBottom();
+  }
+});
 </script>
 
 <style scoped></style>
