@@ -29,6 +29,8 @@ router.beforeEach(async (to, from, next) => {
     next({ name: "/login" });
   } else if ((to.name as string) === "/login" && isLoggedIn) {
     next({ name: "/" });
+  } else if ((to.name as string) === "/chat" && appStore.aiId === null) {
+    next({ name: "/" });
   } else {
     next();
   }
@@ -40,7 +42,7 @@ router.beforeEach(async (to, from, next) => {
       displayName: response.data.displayName,
     });
   } else {
-    appStore.clearUser();
+    appStore.clearState();
   }
 });
 

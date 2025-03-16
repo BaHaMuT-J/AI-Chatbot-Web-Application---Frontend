@@ -26,16 +26,13 @@ export const useAppStore = defineStore("app", {
       this.username = username;
       this.displayName = displayName;
     },
-    clearUser() {
+    clearState() {
+      this.userId = null;
       this.isLoggedIn = false;
       this.username = "";
       this.displayName = "";
-    },
-    setAI(aiId: number) {
-      this.aiId = aiId;
-    },
-    setChat(chatId: number) {
-      this.chatId = chatId;
+      this.aiId = null;
+      this.chatId = null;
     },
   },
 });

@@ -66,23 +66,29 @@ const sendMessage = () => {
   }
 };
 
-onMounted(async () => {
-  if (appStore.aiId !== null) {
-    let respose = await axios.post("/api/chat/getByUserAndAI", {
-      userId: appStore.userId,
-      aiId: appStore.aiId,
-    });
-    let chatId = respose.data.chatId;
-    appStore.setChat(chatId);
+watch(
+  () => appStore.aiId,
+  async (newAiId) => {
+    if (newAiId !== null) {
+      let response = await axios.post("/api/chat/getByUserAndAI", {
+        userId: appStore.userId,
+        aiId: newAiId,
+      });
+      let chatId = response.data.chatId;
+      appStore.chatId = chatId;
 
-    respose = await axios.post("/api/message/getByChat", {
-      chatId: chatId,
-    });
-    messages.value = respose.data;
-  }
+      response = await axios.post("/api/message/getByChat", {
+        chatId: chatId,
+      });
+      messages.value = response.data;
 
-  scrollToBottom();
-});
+      nextTick(() => {
+        scrollToBottom();
+      });
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped></style>

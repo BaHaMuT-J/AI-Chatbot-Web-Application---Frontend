@@ -4,7 +4,9 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
 
-    <v-app-bar-title>AI Chatbot webapp</v-app-bar-title>
+    <v-app-bar-title @click="goHome" style="cursor: pointer">
+      AI Chatbot Webapp
+    </v-app-bar-title>
 
     <template v-slot:append>
       <v-btn color="primary">
@@ -48,7 +50,7 @@
         v-for="(model, index) in models"
         :key="index"
         :active="model.aiId === highlighted"
-        @click="() => chatWithAI(model.aiId)"
+        @click="chatWithAI(model.aiId)"
       >
         <template v-slot:prepend>
           <v-avatar class="ml-4" size="x-large">
@@ -103,14 +105,25 @@ const models = ref<AI[] | null>(null);
 const highlighted = ref<number | null>(null);
 const drawer = ref(true);
 
-const axios: any = inject("axios");
+const appStore = useAppStore();
 const router = useRouter();
+const axios: any = inject("axios");
+
+const goHome = () => {
+  appStore.aiId = null;
+  highlighted.value = null;
+  router.push("/");
+};
+
 const profile = () => {};
+
 const setting = () => {};
+
 const logout = async () => {
   await axios.get("/api/logout");
   router.push("/login");
 };
+
 const menus = [
   { title: "Profile", icon: "fa-solid fa-user", click: profile },
   {
@@ -125,20 +138,15 @@ const menus = [
   },
 ];
 
-const appStore = useAppStore();
 const chatWithAI = (id: number) => {
   if (highlighted.value !== id) {
-    appStore.setAI(id);
+    appStore.aiId = id;
+    highlighted.value = id;
     router.push("/chat");
   }
 };
 
-const route = useRoute();
 onMounted(async () => {
-  if (appStore.aiId !== null) {
-    highlighted.value = appStore.aiId;
-  }
-
   if (window.innerWidth < 1024) {
     drawer.value = false;
   }
