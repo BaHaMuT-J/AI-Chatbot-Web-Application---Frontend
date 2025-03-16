@@ -55,10 +55,25 @@ const scrollToBottom = () => {
   }
 };
 
-const sendMessage = () => {
+const sendMessage = async () => {
   if (newMessage.value.trim() !== "") {
-    messages.value.push({ text: newMessage.value, user: true });
+    let msg = newMessage.value
     newMessage.value = "";
+
+    let response = await axios.post("/api/chat/send", {
+      chatId: appStore.chatId,
+      prompt: msg,
+    });
+
+    if (response.data.success === false) {
+      // alert error
+      let error = response.data.message;
+      return;
+    }
+
+    messages.value.push({ text: msg, user: true });
+    msg = response.data.response
+    messages.value.push({ text: msg, user: false });
 
     nextTick(() => {
       scrollToBottom();
