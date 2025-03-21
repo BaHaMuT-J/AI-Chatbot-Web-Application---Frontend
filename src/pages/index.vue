@@ -1,8 +1,5 @@
-<template>
-  <!-- <Chat /> -->
-  This is Home Page
-</template>
+<template>This is Home Page</template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 //
 </script>

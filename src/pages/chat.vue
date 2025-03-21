@@ -1,6 +1,6 @@
 <template>
   <v-container class="d-flex flex-column ma-auto">
-    <v-list ref="chatBox" class="pa-2" height="calc(85vh - 80px)">
+    <v-list id="chatBox" class="pa-2" height="calc(85vh - 80px)">
       <v-list-item v-for="(msg, index) in messages" :key="index">
         <v-row
           :justify="msg.user ? 'end' : 'start'"
@@ -10,7 +10,11 @@
             <v-img src="https://randomuser.me/api/portraits/men/75.jpg" />
           </v-avatar> -->
 
-          <v-card class="rounded-xl pa-3" max-width="70%" color="blue-darken-3">
+          <v-card
+            class="rounded-xl pa-3"
+            max-width="70%"
+            color="blue-grey-darken-2"
+          >
             <v-card-text class="text-white">
               <span v-html="parseMarkdown(msg.text)"></span>
             </v-card-text>
@@ -36,29 +40,33 @@
   </v-container>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 import { useAppStore } from "@/stores/app";
 import { ref } from "vue";
 import { marked } from "marked";
 
-const messages = ref([]);
+interface Message {
+  text: string;
+  user: boolean;
+}
+
+const messages = ref([] as Message[]);
 
 const newMessage = ref("");
-const chatBox = ref(null);
 
 const appStore = useAppStore();
-const axios = inject("axios");
+const axios: any = inject("axios");
 
 const scrollToBottom = () => {
-  if (chatBox.value) {
-    chatBox.value.$el.scrollTop = chatBox.value.$el.scrollHeight;
-    // chatBox.value.scrollTop = chatBox.value.scrollHeight;
+  var objDiv = document.getElementById("chatBox");
+  if (objDiv) {
+    objDiv.scrollTop = objDiv.scrollHeight;
   }
 };
 
 const sendMessage = async () => {
   if (newMessage.value.trim() !== "") {
-    let msg = newMessage.value
+    let msg = newMessage.value;
     newMessage.value = "";
     messages.value.push({ text: msg, user: true });
     nextTick(() => {
@@ -76,7 +84,7 @@ const sendMessage = async () => {
       let error = response.data.message;
       return;
     }
-    msg = response.data.response
+    msg = response.data.response;
     messages.value.push({ text: msg, user: false });
 
     nextTick(() => {
@@ -85,7 +93,7 @@ const sendMessage = async () => {
   }
 };
 
-const parseMarkdown = (text) => {
+const parseMarkdown = (text: string) => {
   // TODO: if possible, line break the code
   return marked(text);
 };
