@@ -60,7 +60,7 @@
           {{ model.name }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          {{ model.version }}
+          {{ model.model }}
         </v-list-item-subtitle>
 
         <template v-slot:append>
@@ -76,15 +76,15 @@
               <v-divider></v-divider>
 
               <v-select
-                v-model="modelChosen[model.aiId - 1]"
-                :items="modelsAvailable[model.aiId - 1]"
+                v-model="model.model"
+                :items="model.modelsAvailable"
                 hint="Choose model"
                 label="Select"
                 persistent-hint
               ></v-select>
 
               <v-slider
-                v-model="temperature[model.aiId - 1]"
+                v-model="model.temperature"
                 :min="0.1"
                 :max="0.9"
                 :step="0.1"
@@ -94,7 +94,7 @@
               >
                 <template v-slot:append>
                   <v-text-field
-                    v-model="temperature[model.aiId - 1]"
+                    v-model="model.temperature"
                     density="compact"
                     style="width: 90px"
                     type="number"
@@ -105,7 +105,7 @@
               </v-slider>
 
               <v-slider
-                v-model="max_token[model.aiId - 1]"
+                v-model="model.maxToken"
                 :min="100"
                 :max="1000"
                 :step="1"
@@ -115,7 +115,7 @@
               >
                 <template v-slot:append>
                   <v-text-field
-                    v-model="max_token[model.aiId - 1]"
+                    v-model="model.maxToken"
                     density="compact"
                     style="width: 90px"
                     type="number"
@@ -156,22 +156,20 @@ import { ref, inject } from "vue";
 interface AI {
   aiId: number;
   name: string;
-  version: string;
+  model: string;
+  temperature: number;
+  maxToken: number;
+  modelsAvailable: string[];
 }
 
 const appStore = useAppStore();
 const router = useRouter();
 const axios: any = inject("axios");
 
-const models = ref<AI[] | null>(null);
+const models = ref<AI[]>([]);
 const highlighted = ref<number | null>(appStore.aiId);
 const drawer = ref(true);
-
 const dialog = ref<boolean[]>([]);
-const modelChosen = ref<string[]>([]);
-const modelsAvailable = ref<string[][]>([]);
-const temperature = ref<number[]>([]);
-const max_token = ref<number[]>([]);
 
 const goHome = () => {
   appStore.aiId = null;
@@ -230,13 +228,10 @@ const toggleSetting = (aiId: number, open: boolean) => {
 
 const settingChat = (aiId: number) => {
   console.log(aiId);
-  console.log(modelChosen.value[aiId - 1]);
-  console.log(temperature.value[aiId - 1]);
-  console.log(max_token.value[aiId - 1]);
-
-  if (dialog.value === null) {
-    return;
-  }
+  console.log(models.value[aiId - 1].model);
+  console.log(models.value[aiId - 1].modelsAvailable);
+  console.log(models.value[aiId - 1].temperature);
+  console.log(models.value[aiId - 1].maxToken);
 
   dialog.value = dialog.value.map((val, index) =>
     index === aiId - 1 ? false : val
@@ -253,10 +248,6 @@ onMounted(async () => {
 
   if (models.value !== null) {
     dialog.value = models.value.map(() => false);
-    modelChosen.value = models.value.map((model) => model.version);
-    modelsAvailable.value = models.value.map((model) => [model.version]);
-    temperature.value = models.value.map(() => 0.8);
-    max_token.value = models.value.map(() => 200);
   }
 });
 </script>
