@@ -48,7 +48,6 @@
 
 <script setup lang="ts">
 import { useAppStore } from "@/stores/app";
-import { ref } from "vue";
 import { marked } from "marked";
 
 interface Message {
@@ -92,6 +91,7 @@ const sendMessage = async () => {
       loading.value = false;
       return;
     }
+
     msg = response.data.response;
     messages.value.push({ text: msg, user: false });
 

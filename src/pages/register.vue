@@ -71,9 +71,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
-import { useRouter } from "vue-router";
-
 const username = ref("");
 const displayName = ref("");
 const password = ref("");

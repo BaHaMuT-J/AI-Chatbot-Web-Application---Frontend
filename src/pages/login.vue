@@ -59,9 +59,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
-import { useRouter, useRoute } from "vue-router";
-
 const username = ref("");
 const password = ref("");
 const valid = ref(false);
