@@ -33,8 +33,8 @@
     <v-dialog
       v-model="displayNameModal"
       max-width="500px"
-      @click:outside="closeDispkayNameModal"
-      @keydown.esc="closeDispkayNameModal"
+      @click:outside="closeDisplayNameModal"
+      @keydown.esc="closeDisplayNameModal"
       persistent
     >
       <v-card>
@@ -52,7 +52,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" @click="updateDisplayName">Update</v-btn>
-          <v-btn @click="closeDispkayNameModal">Cancel</v-btn>
+          <v-btn @click="closeDisplayNameModal">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -113,10 +113,24 @@
         <v-card-text>
           <p>Are you sure you want to delete your account?</p>
           <p>This action cannot be undone.</p>
+          <v-alert v-if="deleteAccountErr" type="error" dismissible>
+            {{ deleteAccountErr }}
+          </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-btn color="error" @click="deleteAccount">Confirm</v-btn>
           <v-btn color="grey" @click="closeDeleteAccountModal">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="success" width="1000">
+      <v-card color="success">
+        <v-alert type="success" prominent>{{ successMsg }}</v-alert>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="ms-auto" @click="closeSuccess"> Close </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -142,7 +156,12 @@ const newPassword = ref("");
 const confirmNewPassword = ref("");
 const passwordErr = ref<string | null>(null);
 
-const closeDispkayNameModal = () => {
+const deleteAccountErr = ref<string | null>(null);
+
+const success = ref(false);
+const successMsg = ref("");
+
+const closeDisplayNameModal = () => {
   newDisplayName.value = "";
   displayNameErr.value = null;
   displayNameModal.value = false;
@@ -157,19 +176,37 @@ const closeChangePasswordModal = () => {
 };
 
 const closeDeleteAccountModal = () => {
+  deleteAccountErr.value = null;
   deleteAccountModal.value = false;
 };
 
-const updateDisplayName = () => {
+const closeSuccess = () => {
+  success.value = false;
+  successMsg.value = "";
+};
+
+const updateDisplayName = async () => {
   if (newDisplayName.value.trim() !== "") {
-    console.log("Display Name Updated:", newDisplayName.value);
+    let response = await axios.post("/api/user/update", {
+      newDisplayName: newDisplayName.value,
+    });
+
+    const data = response.data;
+    if (!data.success) {
+      displayNameErr.value = data.message;
+    } else {
+      success.value = true;
+      successMsg.value = data.message;
+      appStore.displayName = newDisplayName.value;
+      closeDisplayNameModal();
+    }
   } else {
     displayNameErr.value = "Display Name is required.";
     return;
   }
 };
 
-const changePassword = () => {
+const changePassword = async () => {
   if (
     currentPassword.value.trim() === "" ||
     newPassword.value.trim() === "" ||
@@ -184,15 +221,31 @@ const changePassword = () => {
     return;
   }
 
-  console.log("Password Changed!");
-  changePasswordModal.value = false;
+  let response = await axios.post("/api/user/changePassword", {
+    currentPassword: currentPassword.value,
+    newPassword: newPassword.value,
+    confirmNewPassword: confirmNewPassword.value,
+  });
+
+  const data = response.data;
+  if (!data.success) {
+    passwordErr.value = data.message;
+  } else {
+    success.value = true;
+    successMsg.value = data.message;
+    closeChangePasswordModal();
+  }
 };
 
 const deleteAccount = async () => {
-  console.log("Account Deleted!");
+  let response = await axios.get("/api/user/delete");
 
-  // log out after deleteAccount
-  await axios.get("/api/logout");
+  if (!response.data.success) {
+    deleteAccountErr.value = response.data.message;
+    return;
+  }
+
+  closeDeleteAccountModal();
   router.push("/login");
 };
 </script>
