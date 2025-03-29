@@ -74,13 +74,19 @@
             @click="toggleSetting(model.aiId, true)"
           />
 
-          <v-dialog v-model="dialog[model.aiId - 1]" width="1000">
+          <v-dialog
+            v-model="dialog[model.aiId - 1]"
+            width="1000"
+            @click:outside="toggleSetting(model.aiId, false)"
+            @keydown.esc="toggleSetting(model.aiId, false)"
+            persistent
+          >
             <v-card>
               <v-card-title> {{ model.name }} Settings </v-card-title>
               <v-divider></v-divider>
 
               <v-select
-                v-model="model.model"
+                v-model="modelCurrent[model.aiId - 1]"
                 :items="model.modelsAvailable"
                 hint="Choose model"
                 label="Select"
@@ -88,7 +94,7 @@
               ></v-select>
 
               <v-slider
-                v-model="model.temperature"
+                v-model="temperature[model.aiId - 1]"
                 :min="0.1"
                 :max="0.9"
                 :step="0.1"
@@ -98,7 +104,7 @@
               >
                 <template v-slot:append>
                   <v-text-field
-                    v-model="model.temperature"
+                    v-model="temperature[model.aiId - 1]"
                     density="compact"
                     style="width: 90px"
                     type="number"
@@ -109,7 +115,7 @@
               </v-slider>
 
               <v-slider
-                v-model="model.maxToken"
+                v-model="maxToken[model.aiId - 1]"
                 :min="100"
                 :max="1000"
                 :step="1"
@@ -119,7 +125,7 @@
               >
                 <template v-slot:append>
                   <v-text-field
-                    v-model="model.maxToken"
+                    v-model="maxToken[model.aiId - 1]"
                     density="compact"
                     style="width: 90px"
                     type="number"
@@ -175,6 +181,11 @@ const highlighted = ref<number | null>(appStore.aiId);
 const drawer = ref(true);
 const dialog = ref<boolean[]>([]);
 
+// for temporary settings
+const temperature = ref<number[]>([]);
+const maxToken = ref<number[]>([]);
+const modelCurrent = ref<string[]>([]);
+
 const goHome = () => {
   appStore.aiId = null;
   highlighted.value = null;
@@ -206,36 +217,34 @@ const chatWithAI = (id: number) => {
 };
 
 const toggleSetting = (aiId: number, open: boolean) => {
-  if (dialog.value === null) {
-    return;
-  }
-
-  dialog.value = dialog.value.map((val, index) =>
-    index === aiId - 1 ? open : val
-  );
+  dialog.value[aiId - 1] = open;
+  temperature.value[aiId - 1] = models.value[aiId - 1].temperature;
+  maxToken.value[aiId - 1] = models.value[aiId - 1].maxToken;
+  modelCurrent.value[aiId - 1] = models.value[aiId - 1].model;
 };
 
 const settingChat = async (aiId: number) => {
   const response = await axios.post("/api/ai/setting", {
     userId: appStore.userId,
     aiId: aiId,
-    model: models.value[aiId - 1].model,
-    modelsAvailable: models.value[aiId - 1].modelsAvailable,
-    temperature: models.value[aiId - 1].temperature,
-    maxToken: models.value[aiId - 1].maxToken,
+    model: modelCurrent.value[aiId - 1],
+    temperature: temperature.value[aiId - 1],
+    maxToken: maxToken.value[aiId - 1],
   });
 
-  dialog.value = dialog.value.map((val, index) =>
-    index === aiId - 1 ? false : val
-  );
+  dialog.value[aiId - 1] = false;
 
-  if (!response.data.success) {
+  const data = response.data;
+  if (!data.success) {
     // TODO: alert error
-    const data = response.data;
     let error = data.message;
-    models.value[aiId - 1].model = data.oldModel;
-    models.value[aiId - 1].temperature = data.oldTemperature;
-    models.value[aiId - 1].maxToken = data.oldMaxToken;
+    modelCurrent.value[aiId - 1] = data.oldModel;
+    temperature.value[aiId - 1] = data.oldTemperature;
+    maxToken.value[aiId - 1] = data.oldMaxToken;
+  } else {
+    models.value[aiId - 1].model = modelCurrent.value[aiId - 1];
+    models.value[aiId - 1].temperature = temperature.value[aiId - 1];
+    models.value[aiId - 1].maxToken = maxToken.value[aiId - 1];
   }
 };
 
@@ -249,6 +258,12 @@ onMounted(async () => {
 
   if (models.value !== null) {
     dialog.value = models.value.map(() => false);
+
+    for (let model of models.value) {
+      temperature.value.push(model.temperature);
+      maxToken.value.push(model.maxToken);
+      modelCurrent.value.push(model.model);
+    }
   }
 });
 </script>
