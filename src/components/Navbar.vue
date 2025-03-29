@@ -226,16 +226,28 @@ const toggleSetting = (aiId: number, open: boolean) => {
   );
 };
 
-const settingChat = (aiId: number) => {
-  console.log(aiId);
-  console.log(models.value[aiId - 1].model);
-  console.log(models.value[aiId - 1].modelsAvailable);
-  console.log(models.value[aiId - 1].temperature);
-  console.log(models.value[aiId - 1].maxToken);
+const settingChat = async (aiId: number) => {
+  const response = await axios.post("/api/ai/setting", {
+    userId: appStore.userId,
+    aiId: aiId,
+    model: models.value[aiId - 1].model,
+    modelsAvailable: models.value[aiId - 1].modelsAvailable,
+    temperature: models.value[aiId - 1].temperature,
+    maxToken: models.value[aiId - 1].maxToken,
+  });
 
   dialog.value = dialog.value.map((val, index) =>
     index === aiId - 1 ? false : val
   );
+
+  if (!response.data.success) {
+    // TODO: alert error
+    const data = response.data;
+    let error = data.message;
+    models.value[aiId - 1].model = data.oldModel;
+    models.value[aiId - 1].temperature = data.oldTemperature;
+    models.value[aiId - 1].maxToken = data.oldMaxToken;
+  }
 };
 
 onMounted(async () => {

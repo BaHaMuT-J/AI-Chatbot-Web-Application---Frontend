@@ -78,7 +78,7 @@ const sendMessage = async () => {
       prompt: msg,
     });
 
-    if (response.data.success === false) {
+    if (!response.data.success) {
       // TODO: alert error
       messages.value.pop();
       let error = response.data.message;
@@ -102,17 +102,28 @@ watch(
   () => appStore.aiId,
   async (newAiId) => {
     if (newAiId !== null) {
-      let response = await axios.post("/api/chat/getByUserAndAI", {
-        userId: appStore.userId,
+      let response = await axios.post("/api/chat/getByAI", {
         aiId: newAiId,
       });
+
+      if (!response.data.success) {
+        // TODO: alert error
+        console.log("Watch GetByAI error: ", response.data.message);
+        return;
+      }
       let chatId = response.data.chatId;
       appStore.chatId = chatId;
 
       response = await axios.post("/api/message/getByChat", {
         chatId: chatId,
       });
-      messages.value = response.data;
+
+      if (!response.data.success) {
+        // TODO: alert error
+        console.log("Watch GetByChat error: ", response.data.message);
+        return;
+      }
+      messages.value = response.data.messagesList;
 
       nextTick(() => {
         scrollToBottom();
@@ -124,17 +135,29 @@ watch(
 
 onMounted(async () => {
   if (appStore.aiId !== null) {
-    let response = await axios.post("/api/chat/getByUserAndAI", {
-      userId: appStore.userId,
+    let response = await axios.post("/api/chat/getByAI", {
       aiId: appStore.aiId,
     });
+
+    if (!response.data.success) {
+      // TODO: alert error
+      console.log("GetByAI error: ", response.data);
+      return;
+    }
     let chatId = response.data.chatId;
     appStore.chatId = chatId;
 
     response = await axios.post("/api/message/getByChat", {
       chatId: chatId,
     });
-    messages.value = response.data;
+
+    if (!response.data.success) {
+      // TODO: alert error
+      console.log("GetByChat error: ", response.data.message);
+      return;
+    }
+    console.log(response.data);
+    messages.value = response.data.messagesList;
 
     scrollToBottom();
   }
