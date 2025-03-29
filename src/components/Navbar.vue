@@ -207,7 +207,11 @@ const goHome = () => {
   router.push("/");
 };
 
-const profile = () => {};
+const profile = () => {
+  appStore.aiId = null;
+  highlighted.value = null;
+  router.push("/profile");
+};
 
 const logout = async () => {
   await axios.get("/api/logout");

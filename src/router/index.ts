@@ -5,14 +5,18 @@
  */
 
 // Composables
-import { createRouter, createWebHistory } from "vue-router/auto";
+import {
+  createRouter,
+  createWebHistory,
+  createWebHashHistory,
+} from "vue-router/auto";
 import { setupLayouts } from "virtual:generated-layouts";
 import { routes } from "vue-router/auto-routes";
 import { axiosInstance } from "@/plugins/vue-axios";
 import { useAppStore } from "@/stores/app";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL), // createWebHistory(import.meta.env.BASE_URL),
   routes: setupLayouts(routes),
 });
 
