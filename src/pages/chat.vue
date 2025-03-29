@@ -35,7 +35,13 @@
         auto-grow
         @keyup.enter="sendMessage"
       />
-      <v-btn icon="mdi-send" color="primary" @click="sendMessage"></v-btn>
+      <v-btn
+        v-if="!loading"
+        icon="mdi-send"
+        color="primary"
+        @click="sendMessage"
+      ></v-btn>
+      <v-progress-circular v-if="loading" color="primary" indeterminate />
     </v-footer>
   </v-container>
 </template>
@@ -51,8 +57,8 @@ interface Message {
 }
 
 const messages = ref([] as Message[]);
-
 const newMessage = ref("");
+const loading = ref(false);
 
 const appStore = useAppStore();
 const axios: any = inject("axios");
@@ -73,6 +79,7 @@ const sendMessage = async () => {
       scrollToBottom();
     });
 
+    loading.value = true;
     let response = await axios.post("/api/chat/send", {
       chatId: appStore.chatId,
       prompt: msg,
@@ -82,6 +89,7 @@ const sendMessage = async () => {
       // TODO: alert error
       messages.value.pop();
       let error = response.data.message;
+      loading.value = false;
       return;
     }
     msg = response.data.response;
@@ -89,6 +97,7 @@ const sendMessage = async () => {
 
     nextTick(() => {
       scrollToBottom();
+      loading.value = false;
     });
   }
 };
@@ -156,7 +165,6 @@ onMounted(async () => {
       console.log("GetByChat error: ", response.data.message);
       return;
     }
-    console.log(response.data);
     messages.value = response.data.messagesList;
 
     scrollToBottom();
