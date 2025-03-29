@@ -6,10 +6,6 @@
           :justify="msg.user ? 'end' : 'start'"
           class="d-flex align-center mb-4 pa-3"
         >
-          <!-- <v-avatar v-if="msg.from !== 'me'" size="40">
-            <v-img src="https://randomuser.me/api/portraits/men/75.jpg" />
-          </v-avatar> -->
-
           <v-card
             class="rounded-xl pa-3"
             max-width="70%"
@@ -21,6 +17,17 @@
           </v-card>
         </v-row>
       </v-list-item>
+
+      <v-dialog v-model="alert" width="1000">
+        <v-card color="error">
+          <v-alert type="error" prominent>{{ errorMsg }}</v-alert>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="ms-auto" @click="closeAlert"> Close </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-list>
 
     <!-- Chat Input -->
@@ -59,6 +66,11 @@ const messages = ref([] as Message[]);
 const newMessage = ref("");
 const loading = ref(false);
 
+// for alert error
+const alert = ref(false);
+const errorMsg = ref("");
+
+const router = useRouter();
 const appStore = useAppStore();
 const axios: any = inject("axios");
 
@@ -85,9 +97,8 @@ const sendMessage = async () => {
     });
 
     if (!response.data.success) {
-      // TODO: alert error
+      openAlert(response.data.message + "\n Please try again.");
       messages.value.pop();
-      let error = response.data.message;
       loading.value = false;
       return;
     }
@@ -107,6 +118,16 @@ const parseMarkdown = (text: string) => {
   return marked(text);
 };
 
+const openAlert = (msg: string) => {
+  alert.value = true;
+  errorMsg.value = msg;
+};
+
+const closeAlert = () => {
+  alert.value = false;
+  errorMsg.value = "";
+};
+
 watch(
   () => appStore.aiId,
   async (newAiId) => {
@@ -116,8 +137,7 @@ watch(
       });
 
       if (!response.data.success) {
-        // TODO: alert error
-        console.log("Watch GetByAI error: ", response.data.message);
+        openAlert(response.data.message + "\n Please try again.");
         return;
       }
       let chatId = response.data.chatId;
@@ -128,8 +148,7 @@ watch(
       });
 
       if (!response.data.success) {
-        // TODO: alert error
-        console.log("Watch GetByChat error: ", response.data.message);
+        openAlert(response.data.message + "\n Please try again.");
         return;
       }
       messages.value = response.data.messagesList;
@@ -149,8 +168,7 @@ onMounted(async () => {
     });
 
     if (!response.data.success) {
-      // TODO: alert error
-      console.log("GetByAI error: ", response.data);
+      openAlert(response.data.message + "\n Please try again.");
       return;
     }
     let chatId = response.data.chatId;
@@ -161,8 +179,7 @@ onMounted(async () => {
     });
 
     if (!response.data.success) {
-      // TODO: alert error
-      console.log("GetByChat error: ", response.data.message);
+      openAlert(response.data.message + "\nPlease try again.");
       return;
     }
     messages.value = response.data.messagesList;

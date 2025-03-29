@@ -155,6 +155,17 @@
           </v-dialog>
         </template>
       </v-list-item>
+
+      <v-dialog v-model="alert" width="1000">
+        <v-card color="error">
+          <v-alert type="error" prominent>{{ errorMsg }}</v-alert>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="ms-auto" @click="closeAlert"> Close </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -185,6 +196,10 @@ const dialog = ref<boolean[]>([]);
 const temperature = ref<number[]>([]);
 const maxToken = ref<number[]>([]);
 const modelCurrent = ref<string[]>([]);
+
+// for alert error
+const alert = ref(false);
+const errorMsg = ref("");
 
 const goHome = () => {
   appStore.aiId = null;
@@ -236,8 +251,8 @@ const settingChat = async (aiId: number) => {
 
   const data = response.data;
   if (!data.success) {
-    // TODO: alert error
-    let error = data.message;
+    alert.value = true;
+    errorMsg.value = data.message + "\n Please try again.";
     modelCurrent.value[aiId - 1] = data.oldModel;
     temperature.value[aiId - 1] = data.oldTemperature;
     maxToken.value[aiId - 1] = data.oldMaxToken;
@@ -246,6 +261,11 @@ const settingChat = async (aiId: number) => {
     models.value[aiId - 1].temperature = temperature.value[aiId - 1];
     models.value[aiId - 1].maxToken = maxToken.value[aiId - 1];
   }
+};
+
+const closeAlert = () => {
+  alert.value = false;
+  errorMsg.value = "";
 };
 
 onMounted(async () => {
