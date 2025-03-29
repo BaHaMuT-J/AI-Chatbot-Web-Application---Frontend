@@ -114,7 +114,6 @@ const sendMessage = async () => {
 };
 
 const parseMarkdown = (text: string) => {
-  // TODO: if possible, line break the code
   return marked(text);
 };
 
@@ -189,4 +188,11 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style module>
+pre {
+  overflow-x: auto;
+
+  /* uncomment the line below if you want code to line break instead of overflow */
+  /* white-space: pre-wrap; */
+}
+</style>
